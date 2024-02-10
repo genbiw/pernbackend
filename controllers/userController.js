@@ -3,9 +3,9 @@ const bcrypt = require("bcrypt")
 const { User, Basket } = require("../models/models")
 const jwt = require("jsonwebtoken")
 
-const generateJwt = (id, email, role) => {
+const generateJwt = (id, email, role, name, age, gender, city, address, country) => {
     return jwt.sign(
-        { id, email, role },
+        { id, email, role, name, age, gender, city, address, country },
         process.env.SECRET_KEY,
         { expiresIn: "24h" }
     )
@@ -32,7 +32,7 @@ class UserController {
         const hashPassword = await bcrypt.hash(password, 5)
         const user = await User.create({ email, role, password: hashPassword, name, age, gender, city, address, country })
         const basket = await Basket.create({ userId: user.id })
-        const token = generateJwt(user.id, user.email, user.role)
+        const token = generateJwt(user.id, user.email, user.role, user.name, user.age, user.gender, user.city, user.address, user.country)
         return res.json({ token })
     }
 
@@ -57,19 +57,13 @@ class UserController {
         if (!comparePassword) {
             return next(ApiError.badRequest("Wrong login or password"))
         }
-        const token = generateJwt(user.id, user.email, user.role)
+        const token = generateJwt(user.id, user.email, user.role, user.name, user.age, user.gender, user.city, user.address, user.country)
         return res.json({ token })
     }
 
     async check(req, res, next) {
-        const token = generateJwt(req.user.id, req.user.email, req.user.role)
-        return res.json({ token })
-    }
-
-    async getUser(req, res, next) {
-        const { email } = req.query
-        const user = await User.findOne({ where: { email } })
-        return res.json(user)
+        const token = generateJwt(req.user.id, req.user.email, req.user.role, req.user.name, req.user.age, req.user.gender, req.user.city, req.user.address, req.user.country)
+        return res.json({token})
     }
 
     async updateUserAttribute(req, res, next) { 
