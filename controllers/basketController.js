@@ -34,7 +34,7 @@ class BasketController {
             next(ApiError.badRequest(e.message))
         }
     }
-
+ 
     async updateDevice(req, res, next) {
         try {
             const { userId, deviceId } = req.params

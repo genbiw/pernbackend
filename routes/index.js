@@ -1,6 +1,6 @@
 const Router = require("express")
 const router = new Router()
-
+ 
 const deviceRouter = require("./deviceRouter")
 const userRouter = require("./userRouter")
 const brandRouter = require("./brandRouter")
@@ -17,4 +17,4 @@ router.use("/basket", basketRouter)
 router.use("/rating", ratingRouter)
 router.use("/stripe", stripeRouter)
 
-module.exports = router
+module.exports = router 

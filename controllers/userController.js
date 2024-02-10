@@ -67,24 +67,20 @@ class UserController {
     }
 
     async updateUserAttribute(req, res, next) { 
-        const { email, password, attributename, attributevalue } = req.body
+        const { email, attributename, attributevalue } = req.body
         if (Object.keys(req.body).length == 0) {
             return next(ApiError.badRequest("Where is Body???"))
         }
         if (Object.keys(req.body).length > 4) {
             return next(ApiError.badRequest("Too many params!!!"))
         }
-        if (!email || !password) {
-            return next(ApiError.badRequest("Enter email and passwrod!"))
+        if (!email) {
+            return next(ApiError.badRequest("Enter email!"))
         }
 
         const user = await User.findOne({ where: { email } })
         if (!user) {
             return next(ApiError.badRequest("User doesn't exist"))
-        }
-        let comparePassword = bcrypt.compareSync(password, user.password)
-        if (!comparePassword) {
-            return next(ApiError.badRequest("Wrong login or password"))
         }
         if (attributename in user) {
             const updateObject = {};
@@ -99,4 +95,4 @@ class UserController {
     }
 }
 
-module.exports = new UserController() 
+module.exports = new UserController()
