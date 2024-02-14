@@ -31,8 +31,8 @@ class StripeController {
             const session = await stripe.checkout.sessions.create({
                 line_items: line_items,
                 mode: 'payment',
-                success_url: 'http://localhost:3000/success',
-                cancel_url: 'http://localhost:3000/cancel',
+                success_url: '10.38.30.117:3000/success',
+                cancel_url: '10.38.30.117:3000/cancel',
             })
             console.log(session)
             return res.status(200).json(session.url);
