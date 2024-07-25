@@ -17,4 +17,4 @@ router.use("/basket", basketRouter)
 router.use("/rating", ratingRouter)
 router.use("/stripe", stripeRouter)
 
-module.exports = router 
+module.exports = router  

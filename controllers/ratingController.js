@@ -1,9 +1,6 @@
 const ApiError = require("../error/ApiError");
 const { Rating } = require("../models/models");
 
-
-
-
 class RatingController{
     async addRate(req, res, next){
         try{
