@@ -4,12 +4,12 @@ const {DataTypes} = require("sequelize")
 const User = sequelize1.define("user", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true},
-    phoneNumber: {type: DataTypes.NUMBER, unique: true},
+    phoneNumber: {type: DataTypes.STRING, unique: true},
     password: {type: DataTypes.STRING},
     role: {type: DataTypes.STRING, defaultValue: "USER"},
-    name: {type: DataTypes.STRING},
+    userName: {type: DataTypes.STRING},
     age: {type: DataTypes.INTEGER},
-    gender: {type: DataTypes.ENUM("male", "female"), defaultValue: "male"},
+    gender: {type: DataTypes.ENUM("male", "female")},
     city: {type: DataTypes.STRING},
     address: {type: DataTypes.STRING},
     country: {type: DataTypes.STRING}
