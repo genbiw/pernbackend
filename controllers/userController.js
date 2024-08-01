@@ -82,7 +82,7 @@ class UserController {
             if (!comparePassword) {
                 return next(ApiError.badRequest("Wrong login or password"))
             }
-            const token = generateJwt(user.id, user.email, user.role, user.name, user.age, user.gender, user.city, user.address, user.country)
+            const token = generateJwt(user.id, user.email, user.phoneNumber, user.role, user.userName, user.age, user.gender, user.city, user.address, user.country)
             return res.json({ token })
         } catch (e) {
             // Handle unexpected errors
