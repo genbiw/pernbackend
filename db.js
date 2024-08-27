@@ -7,7 +7,7 @@ const sequelize1 = new Sequelize(
     {
         dialect: "postgres",
         host: process.env.DB_HOST,
-        port: process.env.DB_PORT
+        port: process.env.DB_PORT,
     }
 );
 
@@ -18,7 +18,7 @@ const sequelize2 = new Sequelize(
     {
         dialect: "postgres",
         host: process.env.DB_HOST2, // Add a new environment variable for the second database host
-        port: process.env.DB_PORT
+        port: process.env.DB_PORT,
     }
 );
 

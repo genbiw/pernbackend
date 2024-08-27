@@ -1,9 +1,14 @@
 const ApiError = require("../error/ApiError")
-const { Basket, BasketDevice } = require("../models/models")
+const { defineModels  } = require("../models/models") 
 
 class BasketController {
 
-    async getAll(req, res, next) {
+    async getAll(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice 
+
         try {
             const { userId } = req.params
             const basket = await Basket.findOne({ where: { userId } })
@@ -14,7 +19,12 @@ class BasketController {
         }
     }
 
-    async addDevice(req, res, next) { 
+    async addDevice(req, res, next, activeSequelize) { 
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice 
+
         try {
             const { userId, deviceId, reqQuantity = 1 } = req.body
             const basket = await Basket.findOne({ where: { userId } })
@@ -35,7 +45,12 @@ class BasketController {
         }
     }
  
-    async updateDevice(req, res, next) {
+    async updateDevice(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice 
+
         try {
             const { userId, deviceId } = req.params
             const { reqQuantity } = req.query
@@ -61,7 +76,12 @@ class BasketController {
         }
     }
 
-    async deleteDevice(req, res, next) {
+    async deleteDevice(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice 
+
         try {
             const { userId, deviceId } = req.params
             const basket = await Basket.findOne({ where: { userId } });
@@ -81,7 +101,12 @@ class BasketController {
         }
     }
 
-    async deleteAllDevices(req, res, next) {
+    async deleteAllDevices(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice 
+
         try {
             const { userId } = req.params
             const basket = await Basket.findOne({ where: { userId } })
@@ -96,4 +121,4 @@ class BasketController {
     }
 }
 
-module.exports = new BasketController()
+module.exports = new BasketController() 

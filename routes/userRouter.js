@@ -1,12 +1,17 @@
-const Router = require("express")
-const router = new Router()
-const userController = require("../controllers/userController")
-const authMiddleware = require("../middleware/authMiddleware")
-const tokenMiddleware = require("../middleware/checkTokenMiddleware")
+const Router = require("express");
+const userController = require("../controllers/userController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.post("/registration", userController.registration)
-router.post("/login", userController.login)
-router.get("/auth", authMiddleware, userController.check)
-router.post("/updateuser", tokenMiddleware, userController.updateUserAttribute)
+function createUserRouter(activeSequelize) {
 
-module.exports = router 
+    const router = new Router();
+
+    router.post("/registration", (req, res, next) => userController.registration(req, res, next, activeSequelize));
+    router.post("/login", (req, res, next) => userController.login(req, res, next, activeSequelize));
+    router.get("/auth", authMiddleware, (req, res, next) => userController.check(req, res, next, activeSequelize));
+    router.post("/updateuser", authMiddleware, (req, res, next) => userController.updateUserAttribute(req, res, next, activeSequelize));
+
+    return router;
+}
+
+module.exports = createUserRouter;

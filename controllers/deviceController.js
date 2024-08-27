@@ -1,10 +1,15 @@
 const uuid = require("uuid")
 const path = require("path")
-const { Device, DeviceInfo } = require("../models/models")
-const ApiError = require("../error/ApiError")
+const { defineModels } = require("../models/models")
+const ApiError = require("../error/ApiError") 
 
 class DeviceController {
-    async create(req, res, next) {
+    async create(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Device = models.Device
+        const DeviceInfo = models.DeviceInfo
+
         try {
             let { name, price, brandId, typeId, info } = req.body
             const { img } = req.files
@@ -15,7 +20,7 @@ class DeviceController {
 
             if (info) {
                 info = JSON.parse(info)
-                info.forEach(i => 
+                info.forEach(i =>
                     DeviceInfo.create({
                         title: i.title,
                         description: i.description,
@@ -31,53 +36,78 @@ class DeviceController {
         }
     }
 
-    async getAll(req, res) {
-        let {brandId, typeId, limit, page} = req.query
-        page = page || 1
-        limit = limit || 9
-        let offset = page * limit - limit
+    async getAll(req, res, next, activeSequelize) {
 
-        let devices
-        if(!brandId && !typeId){
-            devices = await Device.findAndCountAll({limit, offset})
-        }
-        if(brandId && !typeId){
-            devices = await Device.findAndCountAll({where:{brandId}, limit, offset})
-        }
-        if(!brandId && typeId){
-            devices = await Device.findAndCountAll({where:{typeId}, limit, offset})
-        }
-        if(brandId && typeId){
-            devices = await Device.findAndCountAll({where:{brandId, typeId}, limit, offset})
-        }
-        return res.json(devices)
-    }
+        const models = defineModels(activeSequelize)
+        const Device = models.Device
 
-    async getOne(req, res, next) {
-        const {id} = req.params
-        const device = await Device.findOne(
-            {
-                where: {id},
-                include: [{model: DeviceInfo, as: "info"}]
+        try {
+            let { brandId, typeId, limit, page } = req.query
+            page = page || 1
+            limit = limit || 9
+            let offset = page * limit - limit
+
+            let devices
+            if (!brandId && !typeId) {
+                devices = await Device.findAndCountAll({ limit, offset })
             }
-        )
-        if(device === null){
-            next(ApiError.badRequest("Device not found")) 
-            return
+            if (brandId && !typeId) {
+                devices = await Device.findAndCountAll({ where: { brandId }, limit, offset })
+            }
+            if (!brandId && typeId) {
+                devices = await Device.findAndCountAll({ where: { typeId }, limit, offset })
+            }
+            if (brandId && typeId) {
+                devices = await Device.findAndCountAll({ where: { brandId, typeId }, limit, offset })
+            }
+            return res.json(devices)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
         }
-        return res.json(device)
+
     }
 
-    async delete(req, res) {
-        const {id} = req.params
-        const deletedRowCount = await Device.destroy({
-            where: {id}
-        })
-        if(deletedRowCount === 0){
-            return res.status(404).json({message: `Device not found`})
+    async getOne(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Device = models.Device
+
+        try {
+            const { id } = req.params
+            const device = await Device.findOne(
+                {
+                    where: { id },
+                    include: [{ model: DeviceInfo, as: "info" }]
+                }
+            )
+            if (device === null) {
+                next(ApiError.badRequest("Device not found"))
+                return
+            }
+            return res.json(device)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
         }
-        return res.status(200).json({message: `Device was deleted`})
+    }
+
+    async delete(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Device = models.Device
+
+        try {
+            const { id } = req.params
+            const deletedRowCount = await Device.destroy({
+                where: { id }
+            })
+            if (deletedRowCount === 0) {
+                return res.status(404).json({ message: `Device not found` })
+            }
+            return res.status(200).json({ message: `Device was deleted` })
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 }
 
-module.exports = new DeviceController() 
+module.exports = new DeviceController()

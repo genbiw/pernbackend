@@ -1,11 +1,11 @@
 const ApiError = require("../error/ApiError")
 const bcrypt = require("bcrypt")
-const { User, Basket } = require("../models/models")
+const { defineModels } = require("../models/models")
 const jwt = require("jsonwebtoken")
 
 const generateJwt = (id, email, phoneNumber, role, userName, age, gender, city, address, country) => {
 
-    return jwt.sign(
+    return jwt.sign( 
         {
             id,
             email,
@@ -25,7 +25,11 @@ const generateJwt = (id, email, phoneNumber, role, userName, age, gender, city, 
 
 
 class UserController {
-    async registration(req, res, next) {
+    async registration(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const User = models.User
+        const Basket = models.Basket 
 
         try {
             const { email, phoneNumber, password, role, userName, age, gender, city, address, country } = req.body
@@ -49,18 +53,22 @@ class UserController {
                 return next(ApiError.badRequest("User already exist"))
             }
             const hashPassword = await bcrypt.hash(password, 5)
-            const user = await User.create({ email, phoneNumber, role, password: hashPassword, userName, age, gender, city, address, country })
+            const user = await User.create({ email, phoneNumber, role, password: hashPassword, userName, age, gender, city, address, country, createdAt: new Date(), updatedAt: new Date(), })
             const basket = await Basket.create({ userId: user.id })
             const token = generateJwt(user.id, user.email, user.phoneNumber, user.role, user.userName, user.age, user.gender, user.city, user.address, user.country)
             return res.json({ token })
         } catch (e) {
             // Handle unexpected errors
-            return next(ApiError.internal("Something went wrong"));
+            return next(ApiError.internal(e));
         }
 
     }
 
-    async login(req, res, next) {
+    async login(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const User = models.User
+
         try {
             const { email, password } = req.body
 
@@ -95,7 +103,11 @@ class UserController {
         return res.json({ token })
     }
 
-    async updateUserAttribute(req, res, next) {
+    async updateUserAttribute(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const User = models.User
+        
         try {
             const { email, attributename, attributevalue } = req.body
             if (Object.keys(req.body).length == 0) {
@@ -124,7 +136,7 @@ class UserController {
             }
         } catch (e) {
             // Handle unexpected errors
-            return next(ApiError.internal("Something went wrong"));
+            return next(ApiError.internal(e));
         }
     }
 }

@@ -1,10 +1,15 @@
-const { Basket, BasketDevice } = require("../models/models")
+const { defineModels } = require("../models/models")
 const stripe = require('stripe')('sk_test_51Nx8sFICc2myeD3vE6BgFB5AE2A84rYNWZqbB9d5omrkkDPtz7ibWLg07tD72v3IPNapLErhgQ7CyKwQTMcXrYEp00FpNjyjaw')
-const { Device } = require("../models/models")
 const ApiError = require("../error/ApiError");
 
 class StripeController {
-    async CheckOut(req, res, next) {
+    async CheckOut(req, res, next, activeSequelize) {
+
+        const models = defineModels(activeSequelize)
+        const Basket = models.Basket
+        const BasketDevice = models.BasketDevice
+        const Device = models.Device
+
         try {
             const { userId } = req.params
             const basket = await Basket.findOne({ where: { userId } })
@@ -12,7 +17,7 @@ class StripeController {
             const deviceIds = basketDevices.map(device => device.deviceId)
 
             const devicesData = await Promise.all(deviceIds.map(async deviceId => {
-                return await Device.findOne({where: { id: deviceId }})
+                return await Device.findOne({ where: { id: deviceId } })
             }))
 
             const line_items = devicesData.map(device => {
@@ -22,7 +27,7 @@ class StripeController {
                         product_data: {
                             name: device.name,
                         },
-                        unit_amount: device.price*100,
+                        unit_amount: device.price * 100,
                     },
                     quantity: 1,
                 }
