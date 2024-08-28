@@ -5,6 +5,7 @@ const cors = require("cors");
 const fileupload = require("express-fileupload");
 const path = require("path");
 const errorHandler = require("./middleware/ErrorHandlingMiddleware");
+const cron = require("node-cron"); // Import the node-cron library
 
 const PORT = process.env.PORT || 5000;
 
@@ -28,7 +29,7 @@ const checkReadOnly = async (sequelize) => {
     }
 };
 
-const start = async () => {
+const switchDatabase = async () => {
     try {
         // Check if the first database is writable
         const isReadOnly = await checkReadOnly(sequelize1);
@@ -48,22 +49,29 @@ const start = async () => {
             if (isReadOnly) {
                 console.error('The second database is also in read-only mode. Unable to proceed.');
                 throw new Error('Both databases are read-only.');
-            }
-            else {
+            } else {
                 await sequelize2.authenticate(); // Authenticate only if writable
                 console.log('Connection to the 2nd DB has been established successfully.');
                 activeSequelize = sequelize2; // Set the active connection
             }
         } catch (error) {
             console.error('Connection to the second database failed or it is read-only:', error);
-            console.error('Unable to start the server.');
-            return;
+            console.error('Unable to switch the database.');
         }
     }
+};
+
+// Schedule a task to run every day at 01:00
+cron.schedule('0 1 * * *', async () => {
+    console.log('Running daily database check at 01:00...');
+    await switchDatabase();
+});
+
+const start = async () => {
+    await switchDatabase(); // Initial check and switch if needed
 
     // Make sure to handle the case where no active connection was established
     if (activeSequelize) {
-
         // Now that activeSequelize is initialized, require the router
         const router = require("./routes/index");
 

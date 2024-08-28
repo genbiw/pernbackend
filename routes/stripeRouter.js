@@ -1,7 +1,12 @@
 const Router = require("express")
-const router = new Router
 const stripeController = require("../controllers/stripeController")
 
-router.post("/create-checkout-session/:userId", (req, res, next) => stripeController.CheckOut(req, res, next, activeSequelize)) 
+function createStripeRouter(activeSequelize){
+    const router = new Router
 
-module.exports = router
+    router.post("/create-checkout-session/:userId", (req, res, next) => stripeController.CheckOut(req, res, next, activeSequelize)) 
+
+    return router
+}
+
+module.exports = createStripeRouter
