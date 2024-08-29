@@ -14,7 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.resolve(__dirname, "static")));
 app.use(fileupload({}));
-app.use(errorHandler); // Error middleware should be last in the chain
 
 let activeSequelize = null; // Global variable for the active Sequelize instance
 
@@ -76,6 +75,7 @@ const start = async () => {
         const router = require("./routes/index");
 
         app.use("/api", (req, res, next) => router(activeSequelize)(req, res, next));
+        app.use(errorHandler); // Error middleware should be last in the chain
         app.listen(PORT, () => {
             console.log(`Server has started on port: ${PORT}`);
         });
