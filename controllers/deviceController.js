@@ -3,7 +3,7 @@ const path = require("path")
 const { defineModels } = require("../models/models")
 const ApiError = require("../error/ApiError") 
 
-class DeviceController {
+class DeviceController { 
     async create(req, res, next, activeSequelize) {
 
         const models = defineModels(activeSequelize)
@@ -71,6 +71,7 @@ class DeviceController {
 
         const models = defineModels(activeSequelize)
         const Device = models.Device
+        const DeviceInfo = models.DeviceInfo
 
         try {
             const { id } = req.params
@@ -81,7 +82,7 @@ class DeviceController {
                 }
             )
             if (device === null) {
-                next(ApiError.badRequest("Device not found"))
+                next(ApiError.badRequest("Device not found")) 
                 return
             }
             return res.json(device)
