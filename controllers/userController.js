@@ -2,10 +2,11 @@ const ApiError = require("../error/ApiError")
 const bcrypt = require("bcrypt")
 const { defineModels } = require("../models/models")
 const jwt = require("jsonwebtoken")
+const crypto = require("crypto")
 
 const generateJwt = (id, email, phoneNumber, role, userName, age, gender, city, address, country) => {
 
-    return jwt.sign( 
+    return jwt.sign(
         {
             id,
             email,
@@ -23,13 +24,36 @@ const generateJwt = (id, email, phoneNumber, role, userName, age, gender, city, 
     )
 }
 
+const generateInfobipJwtLC = (email) => {
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    const uniqueJti = crypto.randomUUID().slice(0, 50); // Ensures max 50 characters for uniqueness
+    const uniqueSid = crypto.randomUUID().slice(0, 50); // Unique session ID, max 50 chars
+
+    // Decode the secret key from Base64
+    const decodedSecretKey = Buffer.from(process.env.INFOBIP_LC_SECRET_KEY, 'base64');
+
+    return jwt.sign(
+        {
+            jti: uniqueJti,
+            sub: email,
+            stp: "email",
+            iss: "e1bc950a-c62f-4b7e-b393-4d3a36d67c22",
+            iat: currentTimeInSeconds,
+            ski: "36cd31fe-085c-4dee-9255-0360073baac7",
+            sid: uniqueSid
+        },
+        decodedSecretKey,
+        { algorithm: 'HS256' }
+    )
+}
+
 
 class UserController {
     async registration(req, res, next, activeSequelize) {
 
         const models = defineModels(activeSequelize)
         const User = models.User
-        const Basket = models.Basket 
+        const Basket = models.Basket
 
         try {
             const { email, phoneNumber, password, role, userName, age, gender, city, address, country } = req.body
@@ -107,7 +131,7 @@ class UserController {
 
         const models = defineModels(activeSequelize)
         const User = models.User
-        
+
         try {
             const { email, attributename, attributevalue } = req.body
             if (Object.keys(req.body).length == 0) {
@@ -136,6 +160,15 @@ class UserController {
             }
         } catch (e) {
             // Handle unexpected errors
+            return next(ApiError.internal(e));
+        }
+    }
+
+    async infobipAuthLC(req, res, next) {
+        try{
+            const infobipLiveChatToken = generateInfobipJwtLC(req.query.email)
+            return res.json({ token: infobipLiveChatToken })
+        }catch(e){
             return next(ApiError.internal(e));
         }
     }

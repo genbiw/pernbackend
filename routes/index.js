@@ -19,5 +19,5 @@ module.exports = function(activeSequelize) {
     router.use("/rating", createRaitingRouter(activeSequelize));
     router.use("/stripe", createStripeRouter(activeSequelize));
 
-    return router;
+    return router; 
 };
